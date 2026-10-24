@@ -1,0 +1,63 @@
+name: build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+env:
+  # Persist vcpkg-built dependency binaries in the GitHub Actions cache so the matrix
+  # configs (and future runs) restore prebuilt .libs instead of recompiling them. The
+  # previous workspace-local cache dir was wiped each run, so it never helped.
+  VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        build-type:
+          - debug
+          - release
+        compiler:
+          - msvc
+        version:
+          - all
+          - flat
+          - vr
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: main
+
+      - name: Setup cmake
+        uses: lukka/get-cmake@latest
+
+      - name: Setup msvc
+        uses: ilammy/msvc-dev-cmd@v1.10.0
+
+      - name: Setup vcpkg
+        uses: friendlyanon/setup-vcpkg@v1
+        with:
+          committish: 943c5ef1c8f6b5e6ced092b242c8299caae2ff01
+
+      # x-gha reads the Actions cache endpoint from these two variables, which GitHub
+      # only exposes to the github-script runtime — re-export them so vcpkg sees them.
+      - name: Enable vcpkg GitHub Actions binary cache
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      - name: Build
+        uses: lukka/run-cmake@v10.0
+        with:
+          cmakeListsTxtPath: ${{ github.workspace }}/main/CMakeLists.txt
+          configurePreset: build-${{ matrix.build-type }}-${{ matrix.compiler }}-vcpkg-${{ matrix.version }}
+          buildPreset: ${{ matrix.build-type }}-${{ matrix.compiler }}-vcpkg-${{ matrix.version }}

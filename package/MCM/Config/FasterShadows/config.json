@@ -1,0 +1,30 @@
+{
+    "modName": "FasterShadows",
+    "displayName": "Faster Shadows",
+    "minMcmVersion": 1,
+    "content": [
+        {"type": "text", "text": "The switches apply at once; the shadow rules the next time you start the game."},
+        {"type": "spacer"},
+
+        {"type": "section", "text": "General"},
+        {"id": "bEnabled:General", "type": "switcher", "text": "Faster Shadows", "help": "Off draws the shadows exactly as the game does, the same as pressing F10.", "valueOptions": {"sourceType": "ModSettingBool"}},
+        {"type": "spacer"},
+
+        {"type": "section", "text": "Sun shadows"},
+        {"id": "bCascadeCadence:SunShadows", "type": "switcher", "text": "Staggered cascades", "help": "The near shadow cascade updates every frame, the middle one every second frame and the far one every fourth. Off redraws every cascade every frame.", "valueOptions": {"sourceType": "ModSettingBool"}},
+        {"id": "bCadenceSkipCull:SunShadows", "type": "switcher", "text": "Skip culling of kept cascades", "help": "A cascade that keeps its shadow map this frame also skips gathering its shadow casters. Needs staggered cascades.", "valueOptions": {"sourceType": "ModSettingBool"}},
+        {"id": "bCullOnWorkerThread:SunShadows", "type": "switcher", "text": "Worker thread", "help": "Gathers the sun's shadow casters on a separate thread while the main thread draws the scene. Outdoors with precombined visibility only.", "valueOptions": {"sourceType": "ModSettingBool"}},
+        {"type": "spacer"},
+
+        {"type": "section", "text": "Shadow rules (restart)"},
+        {"type": "text", "text": "Optional rules from Skyrim Performance Solution. They remove shadows for little gain on top of the staggered cascades, so they are off by default."},
+        {"id": "bEnabled:SunShadows", "type": "switcher", "text": "Drop small, distant sun shadows", "help": "Small objects far away stop casting sun shadows. Never in the nearest cascade or with a low sun. Takes effect the next time you start the game.", "valueOptions": {"sourceType": "ModSettingBool"}},
+        {"id": "bEnabled:ActorShadows", "type": "switcher", "text": "Drop distant characters' shadows", "help": "Characters and creatures beyond about 50 m cast no shadows. Not with a low sun. Takes effect the next time you start the game.", "valueOptions": {"sourceType": "ModSettingBool"}},
+        {"id": "bEnabled:PointShadows", "type": "switcher", "text": "Drop small lamp shadows", "help": "Small objects far from a lamp stop casting its shadow, outdoors only. Takes effect the next time you start the game.", "valueOptions": {"sourceType": "ModSettingBool"}},
+        {"id": "bEnabled:RainOcclusion", "type": "switcher", "text": "Leave small objects out of the rain map", "help": "Rain or snow can then fall through small roofs. Takes effect the next time you start the game.", "valueOptions": {"sourceType": "ModSettingBool"}},
+        {"type": "spacer"},
+
+        {"type": "section", "text": "Fallout 4 VR"},
+        {"id": "bCascadeRedraw:VR", "type": "switcher", "text": "Cascade redraw", "help": "Fallout 4 VR only: a cascade your head moved or turned away from joins the game's next refit, so far shadows catch up sooner.", "valueOptions": {"sourceType": "ModSettingBool"}}
+    ]
+}

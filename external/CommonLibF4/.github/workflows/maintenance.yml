@@ -1,0 +1,31 @@
+name: maintenance
+
+on: [push, pull_request_target, workflow_dispatch]
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # added or changed files to the repository.
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Run clang-format
+        run: find -type f \( -name *.h -o -name *.cpp \) | xargs clang-format-16 -style=file -i
+
+      - name: Glob files
+        run: python ${{ github.workspace }}/CommonLibF4/scripts/glob_files.py
+
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "chore: maintenance"

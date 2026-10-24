@@ -1,0 +1,344 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "common",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS": "$env{PROJECT_PLATFORM_FLAGS} $env{PROJECT_TEXT_FLAGS} $env{PROJECT_COMPILER_FLAGS} $penv{CXX_FLAGS}"
+      },
+      "errors": {
+        "deprecated": true
+      },
+      "warnings": {
+        "deprecated": true,
+        "dev": true
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "$env{PROJECT_PLATFORM}-$env{PROJECT_COMPILER}-$env{PROJECT_ARCHITECTURE}",
+          "enableMicrosoftCodeAnalysis": true,
+          "enableClangTidyCodeAnalysis": true
+        }
+      }
+    },
+    {
+      "name": "architecture-x64",
+      "hidden": true,
+      "environment": {
+        "PROJECT_ARCHITECTURE": "x64"
+      }
+    },
+    {
+      "name": "buildtype-debug",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "buildtype-release",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "buildtype-relwithdebinfo",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "buildtype-minsizerel",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel"
+      }
+    },
+    {
+      "name": "packaging-vcpkg",
+      "hidden": true,
+      "toolchainFile": "$env{VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "USE_VCPKG": "ON",
+        "VCPKG_HOST_TRIPLET": "$env{PROJECT_ARCHITECTURE}-$env{PROJECT_PLATFORM}-static-md",
+        "VCPKG_TARGET_TRIPLET": "$env{PROJECT_ARCHITECTURE}-$env{PROJECT_PLATFORM}-static-md"
+      }
+    },
+    {
+      "name": "platform-win32",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+      },
+      "environment": {
+        "PROJECT_PLATFORM_FLAGS": "-DWIN32_LEAN_AND_MEAN -DNOMINMAX",
+        "PROJECT_PLATFORM": "windows"
+      }
+    },
+    {
+      "name": "platform-win32-unicode",
+      "hidden": true,
+      "inherits": "platform-win32",
+      "environment": {
+        "PROJECT_TEXT_FLAGS": "-DUNICODE -D_UNICODE"
+      }
+    },
+    {
+      "name": "generator-ninja",
+      "hidden": true,
+      "generator": "Ninja"
+    },
+    {
+      "name": "compiler-msvc",
+      "hidden": true,
+      "environment": {
+        "PROJECT_COMPILER_FLAGS": "/permissive- /Zc:preprocessor /EHsc /MP /W4 /WX /external:anglebrackets /external:W0 /bigobj",
+        "PROJECT_COMPILER": "msvc"
+      }
+    },
+    {
+      "name": "runtimes-all",
+      "hidden": true
+    },
+    {
+      "name": "runtimes-vr",
+      "hidden": true,
+      "cacheVariables": {
+        "ENABLE_FALLOUT_NG": "OFF",
+        "ENABLE_FALLOUT_F4": "OFF"
+      }
+    },
+    {
+      "name": "runtimes-flat",
+      "hidden": true,
+      "cacheVariables": {
+        "ENABLE_FALLOUT_VR": "OFF"
+      }
+    },
+    {
+      "name": "runtimes-f4",
+      "hidden": true,
+      "cacheVariables": {
+        "ENABLE_FALLOUT_NG": "OFF",
+        "ENABLE_FALLOUT_VR": "OFF"
+      }
+    },
+    {
+      "name": "runtimes-ng",
+      "hidden": true,
+      "cacheVariables": {
+        "ENABLE_FALLOUT_F4": "OFF",
+        "ENABLE_FALLOUT_VR": "OFF"
+      }
+    },
+    {
+      "name": "runtimes-pre-ng",
+      "hidden": true,
+      "cacheVariables": {
+        "ENABLE_FALLOUT_NG": "OFF"
+      }
+    },
+    {
+      "name": "runtimes-current",
+      "hidden": true,
+      "cacheVariables": {
+        "ENABLE_FALLOUT_F4": "OFF"
+      }
+    },
+    {
+      "name": "build-debug-msvc-vcpkg-all",
+      "inherits": [
+        "buildtype-debug",
+        "architecture-x64",
+        "platform-win32-unicode",
+        "generator-ninja",
+        "compiler-msvc",
+        "packaging-vcpkg",
+        "runtimes-all",
+        "common"
+      ],
+      "binaryDir": "${sourceDir}/build/debug-msvc-vcpkg-all"
+    },
+    {
+      "name": "build-debug-msvc-vcpkg-flat",
+      "inherits": ["build-debug-msvc-vcpkg-all", "runtimes-flat"],
+      "binaryDir": "${sourceDir}/build/debug-msvc-vcpkg-flat"
+    },
+    {
+      "name": "build-debug-msvc-vcpkg-vr",
+      "inherits": ["build-debug-msvc-vcpkg-all", "runtimes-vr"],
+      "binaryDir": "${sourceDir}/build/debug-msvc-vcpkg-vr"
+    },
+    {
+      "name": "build-debug-msvc-vcpkg-ng",
+      "inherits": ["build-debug-msvc-vcpkg-all", "runtimes-ng"],
+      "binaryDir": "${sourceDir}/build/debug-msvc-vcpkg-ng"
+    },
+    {
+      "name": "build-debug-msvc-vcpkg-f4",
+      "inherits": ["build-debug-msvc-vcpkg-all", "runtimes-f4"],
+      "binaryDir": "${sourceDir}/build/debug-msvc-vcpkg-f4"
+    },
+    {
+      "name": "build-debug-msvc-vcpkg-pre-ng",
+      "inherits": ["build-debug-msvc-vcpkg-all", "runtimes-pre-ng"],
+      "binaryDir": "${sourceDir}/build/debug-msvc-vcpkg-pre-ng"
+    },
+    {
+      "name": "build-debug-msvc-vcpkg-current",
+      "inherits": ["build-debug-msvc-vcpkg-all", "runtimes-current"],
+      "binaryDir": "${sourceDir}/build/debug-msvc-vcpkg-current"
+    },
+    {
+      "name": "build-release-msvc-vcpkg-all",
+      "inherits": [
+        "buildtype-release",
+        "architecture-x64",
+        "platform-win32-unicode",
+        "generator-ninja",
+        "compiler-msvc",
+        "packaging-vcpkg",
+        "runtimes-all",
+        "common"
+      ],
+      "binaryDir": "${sourceDir}/build/release-msvc-vcpkg-all"
+    },
+    {
+      "name": "build-release-msvc-vcpkg-flat",
+      "inherits": ["build-release-msvc-vcpkg-all", "runtimes-flat"],
+      "binaryDir": "${sourceDir}/build/release-msvc-vcpkg-flat"
+    },
+    {
+      "name": "build-release-msvc-vcpkg-vr",
+      "inherits": ["build-release-msvc-vcpkg-all", "runtimes-vr"],
+      "binaryDir": "${sourceDir}/build/release-msvc-vcpkg-vr"
+    },
+    {
+      "name": "build-release-msvc-vcpkg-ng",
+      "inherits": ["build-release-msvc-vcpkg-all", "runtimes-ng"],
+      "binaryDir": "${sourceDir}/build/release-msvc-vcpkg-ng"
+    },
+    {
+      "name": "build-release-msvc-vcpkg-f4",
+      "inherits": ["build-release-msvc-vcpkg-all", "runtimes-f4"],
+      "binaryDir": "${sourceDir}/build/release-msvc-vcpkg-f4"
+    },
+    {
+      "name": "build-release-msvc-vcpkg-pre-ng",
+      "inherits": ["build-release-msvc-vcpkg-all", "runtimes-pre-ng"],
+      "binaryDir": "${sourceDir}/build/release-msvc-vcpkg-pre-ng"
+    },
+    {
+      "name": "build-release-msvc-vcpkg-current",
+      "inherits": ["build-release-msvc-vcpkg-all", "runtimes-current"],
+      "binaryDir": "${sourceDir}/build/release-msvc-vcpkg-current"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug-msvc-vcpkg-all",
+      "displayName": "Debug (All, MSVC, Vcpkg)",
+      "configurePreset": "build-debug-msvc-vcpkg-all"
+    },
+    {
+      "name": "debug-msvc-vcpkg-vr",
+      "displayName": "Debug (VR, MSVC, Vcpkg)",
+      "configurePreset": "build-debug-msvc-vcpkg-vr"
+    },
+    {
+      "name": "debug-msvc-vcpkg-flat",
+      "displayName": "Debug (Flat, MSVC, Vcpkg)",
+      "configurePreset": "build-debug-msvc-vcpkg-flat"
+    },
+    {
+      "name": "debug-msvc-vcpkg-ng",
+      "displayName": "Debug (NG, MSVC, Vcpkg)",
+      "configurePreset": "build-debug-msvc-vcpkg-ng"
+    },
+    {
+      "name": "debug-msvc-vcpkg-f4",
+      "displayName": "Debug (F4, MSVC, Vcpkg)",
+      "configurePreset": "build-debug-msvc-vcpkg-f4"
+    },
+    {
+      "name": "release-msvc-vcpkg-all",
+      "displayName": "Release (All, MSVC, Vcpkg)",
+      "configurePreset": "build-release-msvc-vcpkg-all"
+    },
+    {
+      "name": "release-msvc-vcpkg-vr",
+      "displayName": "Release (VR, MSVC, Vcpkg)",
+      "configurePreset": "build-release-msvc-vcpkg-vr"
+    },
+    {
+      "name": "release-msvc-vcpkg-flat",
+      "displayName": "Release (Flat, MSVC, Vcpkg)",
+      "configurePreset": "build-release-msvc-vcpkg-flat"
+    },
+    {
+      "name": "release-msvc-vcpkg-ng",
+      "displayName": "Release (NG, MSVC, Vcpkg)",
+      "configurePreset": "build-release-msvc-vcpkg-ng"
+    },
+    {
+      "name": "release-msvc-vcpkg-f4",
+      "displayName": "Release (F4, MSVC, Vcpkg)",
+      "configurePreset": "build-release-msvc-vcpkg-f4"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "all",
+      "displayName": "All Tests",
+      "configurePreset": "build-debug-msvc-vcpkg-all",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": false
+      }
+    },
+    {
+      "name": "unit",
+      "displayName": "Unit Tests",
+      "description": "Runs tests that do not require any Fallout module loaded into the process.",
+      "inherits": "all",
+      "filter": {
+        "exclude": {
+          "label": "[integration],[e2e]"
+        }
+      }
+    },
+    {
+      "name": "integration",
+      "displayName": "Integration Tests",
+      "description": "Runs tests that interact with a Fallout module at rest (do not require the Fallout module to have run any main function).",
+      "inherits": "all",
+      "filter": {
+        "include": {
+          "label": "[integration]"
+        }
+      }
+    },
+    {
+      "name": "e2e",
+      "displayName": "End-to-End Tests",
+      "description": "Runs test that depend on a fully running Fallout engine in the process.",
+      "inherits": "all",
+      "filter": {
+        "include": {
+          "label": "[e2e]"
+        }
+      }
+    }
+  ]
+}

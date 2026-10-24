@@ -1,0 +1,7 @@
+/build*/
+/dist/
+/.runtime-tests/
+/upstream/
+/external/
+__pycache__/
+*.pyc

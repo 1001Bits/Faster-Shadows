@@ -1,0 +1,3 @@
+LIBRARY FPSFolderGuard
+EXPORTS
+    Initialize @1

@@ -1,0 +1,158 @@
+name: Main CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/main_ci.yml"
+      - "cmake/**"
+      - "include/**"
+      - "src/**"
+      - "tests/**"
+      - "CMakeLists.txt"
+      - "CMakePresets.json"
+      - "vcpkg.json"
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Debug
+  VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg-cache
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        config: [gcc-9, gcc-12, clang-13, clang-15]
+        arch: [x86, x64]
+        include:
+          - config: gcc-9
+            compiler: gcc
+            version: "9"
+          - config: gcc-12
+            compiler: gcc
+            version: "12"
+          - config: clang-13
+            compiler: clang
+            version: "13"
+          - config: clang-15
+            compiler: clang
+            version: "15"
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: mmio
+
+      - name: Set up GCC
+        if: ${{ matrix.compiler == 'gcc' }}
+        uses: egor-tensin/setup-gcc@v1
+        with:
+          version: ${{ matrix.version }}
+          platform: ${{ matrix.arch }}
+
+      - name: Set up Clang
+        if: ${{ matrix.compiler == 'clang' }}
+        uses: egor-tensin/setup-clang@v1
+        with:
+          version: ${{ matrix.version }}
+          platform: ${{ matrix.arch }}
+
+      - name: Setup Environment
+        run: |
+          wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip
+          unzip ninja-linux.zip
+          sudo mv ninja /usr/local/bin
+
+      - name: Download Catch2
+        uses: actions/checkout@v2
+        with:
+          ref: v3.0.1
+          repository: catchorg/Catch2
+          path: catch2
+
+      - name: Install Catch2
+        working-directory: ${{ github.workspace }}/catch2
+        run: |
+          cmake -B build -S . -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCATCH_BUILD_TESTING=OFF -DCATCH_ENABLE_WERROR=OFF -DCATCH_INSTALL_DOCS=OFF
+          cmake --build build
+          sudo cmake --install build
+
+      - name: Configure CMake
+        working-directory: ${{ github.workspace }}/mmio
+        run: cmake --preset ninja-linux-apt -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+
+      - name: Build
+        working-directory: ${{ github.workspace }}/mmio
+        run: cmake --build build
+
+      - name: Test
+        working-directory: ${{ github.workspace }}/mmio/build
+        run: ctest -C ${{ env.BUILD_TYPE }} -V
+
+      - name: Collect code coverage
+        uses: codecov/codecov-action@v1
+        with:
+          fail_ci_if_error: true
+          working-directory: ${{ github.workspace }}/mmio/build
+
+  windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        compiler: [msvc]
+        arch: [x86, x64]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: mmio
+
+      - name: Set up MSVC
+        uses: egor-tensin/vs-shell@v2
+        with:
+          arch: ${{ matrix.arch }}
+
+      - name: Setup vcpkg
+        run: |
+          mkdir -p ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          cd $env:VCPKG_INSTALLATION_ROOT
+          ./bootstrap-vcpkg.bat
+          ./vcpkg --version > ${{ github.workspace }}/vcpkg-version.txt
+
+      - name: Cache vcpkg
+        uses: actions/cache@v2
+        id: vcpkg-cache
+        env:
+          cache-name: vcpkg-cache
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}/*
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('mmio/**/vcpkg.json', 'vcpkg-version.txt') }}
+
+      - name: Install OpenCPPCoverage
+        working-directory: ${{ github.workspace }}/mmio/scripts/opencppcoverage
+        run: |
+          choco pack
+          choco install opencppcoverage -s . -y
+
+      - name: Configure CMake
+        working-directory: ${{ github.workspace }}/mmio
+        run: cmake --preset ninja-windows-vcpkg -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-windows-static-md
+
+      - name: Build
+        working-directory: ${{ github.workspace }}/mmio
+        run: cmake --build build
+
+      - name: Test
+        working-directory: ${{ github.workspace }}/mmio/build
+        run: |
+          & "$($env:SystemDrive)/Program Files/OpenCppCoverage/OpenCppCoverage.exe" --sources mmio\src --sources mmio\tests --cover_children --export_type cobertura -- ctest -C ${{ env.BUILD_TYPE }} -V
+
+      - name: Collect code coverage
+        uses: codecov/codecov-action@v2
+        with:
+          fail_ci_if_error: true
+          files: build/ctestCoverage.xml
+          working-directory: ${{ github.workspace }}/mmio/build
